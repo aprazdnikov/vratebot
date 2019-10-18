@@ -6,9 +6,10 @@ from aiogram.utils import executor
 from aiogram.types import ParseMode
 from aiogram.utils.markdown import bold
 
-from config import BOT_FATHER_TOKEN, COINMARKETCAP_TOKEN, BUTTON, MESSAGE, URL
-from keyboards import KeyboardsBot
-from requests_data import RequestData
+from bot.config import BOT_FATHER_TOKEN, COINMARKETCAP_TOKEN, \
+    BUTTON, MESSAGE, URL
+from bot.keyboards import KeyboardsBot
+from bot.requests_data import RequestData
 
 logging.basicConfig(level=logging.INFO)
 
@@ -19,6 +20,14 @@ kb = KeyboardsBot()
 
 @dp.message_handler(commands=['start'])
 async def process_start_command(message: types.Message):
+    user = message.from_user
+    r = RequestData()
+    res = r.get_data(
+        URL.DJANGO_SERVER.NAME, URL.DJANGO_SERVER.GET, {'id': user.id}
+    )
+    if not res:
+        pass
+
     await message.reply(MESSAGE.START, reply_markup=kb.btn)
 
 
@@ -31,8 +40,12 @@ async def process_help_command(message: types.Message):
 async def echo_message(msg: types.Message):
 
     if (msg.text == BUTTON.BTC) or (msg.text == BUTTON.ETH):
-        r = RequestData(COINMARKETCAP_TOKEN)
+        r = RequestData(
+            header={'Accepts': 'application/json',
+                    'X-CMC_PRO_API_KEY': COINMARKETCAP_TOKEN}
+            )
         price = r.get_data(
+            name_service=URL.COINMARKETCAP.NAME,
             url=URL.COINMARKETCAP.API,
             parameters={'symbol': msg.text}
         )
@@ -40,6 +53,11 @@ async def echo_message(msg: types.Message):
             text_ = bold(f'Курс {msg.text}: \n\n') + f"{price} USD за единицу"
         else:
             text_ = MESSAGE.SORRY
+
+    elif msg.text == BUTTON.WALLET:
+        pass
+
+        text_ = str(q)
 
     elif msg.text == BUTTON.HELP:
         text_ = MESSAGE.HELP
