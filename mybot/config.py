@@ -7,14 +7,14 @@ COINMARKETCAP_TOKEN = '58bb02ef-beb4-4da8-bdc7-2fc1b5ddf1a5'
 
 
 class BUTTON:
-    BTC = 'BTC'
-    ETH = 'ETH'
+    BTC = 'Курс BTC'
+    ETH = 'Курс ETH'
     WALLET = 'Кошелек'
     HELP = 'Помощь'
 
 
 class MESSAGE:
-    START = emojize('Привет! Воспользуйтесь клавиатурой, '
+    START = emojize(f'Привет! Воспользуйтесь навигацией, '
                     'чтобы получить больше информации! :wink:')
     HELP = message_text = pre(emojize(
         '''Возможности бота:
@@ -32,7 +32,7 @@ class URL:
         NAME = 'coinmarketcap'
         API = 'https://pro-api.coinmarketcap.com/v1'
 
-    class DJANGO_SERVER:
+    class DJANGOSERVER:
         NAME = 'djangoserver'
         GET = 'http://127.0.0.1:8000/users/get'
         CREATE = 'http://127.0.0.1:8000/users/create'

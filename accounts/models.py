@@ -6,8 +6,8 @@ class Account(models.Model):
 
     user_id = models.IntegerField(null=False, editable=False)
     user_name = models.CharField(max_length=255)
-    btc_balance = models.FloatField(null=False, blank=False)
-    eth_balance = models.FloatField(null=False, blank=False)
+    btc_balance = models.IntegerField(null=False, blank=False)
+    eth_balance = models.IntegerField(null=False, blank=False)
 
     def __unicode__(self):
         return f"Пользователь {self.user_name}\n" \
