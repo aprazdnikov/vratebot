@@ -6,10 +6,11 @@ from aiogram.utils import executor
 from aiogram.types import ParseMode
 from aiogram.utils.markdown import bold
 
-from bot.config import BOT_FATHER_TOKEN, COINMARKETCAP_TOKEN, \
+from mybot.config import BOT_FATHER_TOKEN, COINMARKETCAP_TOKEN, \
     BUTTON, MESSAGE, URL
-from bot.keyboards import KeyboardsBot
-from bot.requests_data import RequestData
+from mybot.keyboards import KeyboardsBot
+from mybot.requests_data import RequestData
+
 
 logging.basicConfig(level=logging.INFO)
 
@@ -23,10 +24,13 @@ async def process_start_command(message: types.Message):
     user = message.from_user
     r = RequestData()
     res = r.get_data(
-        URL.DJANGO_SERVER.NAME, URL.DJANGO_SERVER.GET, {'id': user.id}
+        URL.DJANGOSERVER.NAME, URL.DJANGOSERVER.GET, {'id': user.id}
     )
     if not res:
-        pass
+        r.get_data(
+            URL.DJANGOSERVER.NAME, URL.DJANGOSERVER.CREATE,
+            {'id': user.id, 'user_name': user.full_name, 'balance': user.id}
+        )
 
     await message.reply(MESSAGE.START, reply_markup=kb.btn)
 
@@ -47,17 +51,27 @@ async def echo_message(msg: types.Message):
         price = r.get_data(
             name_service=URL.COINMARKETCAP.NAME,
             url=URL.COINMARKETCAP.API,
-            parameters={'symbol': msg.text}
+            parameters={'symbol': msg.text.split(' ')[1]}
         )
         if price is not None:
-            text_ = bold(f'Курс {msg.text}: \n\n') + f"{price} USD за единицу"
+            text_ = bold(f'{msg.text}: \n\n') + f"{price} USD за единицу"
         else:
             text_ = MESSAGE.SORRY
 
     elif msg.text == BUTTON.WALLET:
-        pass
-
-        text_ = str(q)
+        r = RequestData()
+        res = r.get_data(
+            URL.DJANGOSERVER.NAME, URL.DJANGOSERVER.GET,
+            {'id': msg.from_user.id}
+        )
+        if res:
+            text_ = bold(
+                f"{res.get('user_name')}\n\n") + \
+                f"В вашем кошельке: \n" + \
+                bold(f"BTC:") + f" {res.get('btc')}\n" + \
+                bold(f"ETH:") + f" {res.get('eth')}"
+        else:
+            text_ = MESSAGE.SORRY
 
     elif msg.text == BUTTON.HELP:
         text_ = MESSAGE.HELP

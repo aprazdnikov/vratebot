@@ -31,10 +31,11 @@ class RequestData(object):
                 if isinstance(price, collections.Mapping):
                     _ = price.get('data').get('quote').get('USD').get('price')
                     return str(round(_, 2))
-        elif name_service == URL.DJANGO_SERVER.NAME:
-            self.__get_data_in_base(url, parameters)
+        elif name_service == URL.DJANGOSERVER.NAME:
+            return self.__data_in_base(url, parameters)
 
-        return None
+        else:
+            return None
 
     def __get_data_crypto(self, url, params):
         try:
@@ -43,7 +44,7 @@ class RequestData(object):
         except (ConnectionError, Timeout, TooManyRedirects) as e:
             return str(e)
 
-    def __get_data_in_base(self, url, params):
+    def __data_in_base(self, url, params):
         try:
             response = self.session.post(url, data=params)
             return json.loads(response.text)
