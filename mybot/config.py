@@ -28,9 +28,16 @@ class MESSAGE:
 
 
 class URL:
+
     class COINMARKETCAP:
         NAME = 'coinmarketcap'
         API = 'https://pro-api.coinmarketcap.com/v1'
+
+        class CURRENCY:
+            BTC = 'BTC'
+            ETH = 'ETH'
+            USD = 'USD'
+            USDT = 'USDT'
 
     class DJANGOSERVER:
         NAME = 'djangoserver'
