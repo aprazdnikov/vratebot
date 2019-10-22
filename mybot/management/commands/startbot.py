@@ -1,7 +1,6 @@
 import logging
 
 from django.core.management.base import BaseCommand
-from django.core.cache import cache
 
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher

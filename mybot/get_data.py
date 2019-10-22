@@ -31,7 +31,11 @@ def rate_currency(currency):
 
 def get_users(user_id):
     user = Account.objects.filter(user_id=user_id)
-    return get_result(user)[0]
+    user = get_result(user)[0]
+    if user:
+        return user
+    else:
+        return None
 
 
 def create_users(user):
