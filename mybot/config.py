@@ -19,7 +19,8 @@ class MESSAGE:
     HELP = message_text = pre(emojize(
         '''Возможности бота:
 - Показать курс криптовалюты :dollar:
-- При написании любого сообщение, оно будет отправлено вам в ответ :speaker:'''
+- Отобразить баланс кошелька на основе id пользователя
+- При написании любого сообщения, оно будет отправлено вам в ответ :speaker:'''
     ))
     SORRY = emojize(
         'Извините, произошла ошибка, попробуйте еще раз через некоторое '
@@ -33,13 +34,12 @@ class URL:
         NAME = 'coinmarketcap'
         API = 'https://pro-api.coinmarketcap.com/v1'
 
-        class CURRENCY:
-            BTC = 'BTC'
-            ETH = 'ETH'
-            USD = 'USD'
-            USDT = 'USDT'
-
     class DJANGOSERVER:
         NAME = 'djangoserver'
-        GET = 'http://127.0.0.1:8000/users/get'
-        CREATE = 'http://127.0.0.1:8000/users/create'
+
+
+class CURRENCY:
+    BTC = 'BTC'
+    ETH = 'ETH'
+    USD = 'USD'
+    USDT = 'USDT'

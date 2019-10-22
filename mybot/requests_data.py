@@ -33,12 +33,11 @@ class RequestData(object):
                         {'id': id_, 'amount': '1', 'convert': currency}
                     ))
 
-                if isinstance(price, collections.Mapping):
-                    if len(price) > 1:
-                        return price
-                    else:
-                        return str(round(price.get('data').get('quote')
-                                         .get(currency).get('price'), 2))
+                if len(price) > 1:
+                    return price
+                else:
+                    return str(round(price[0].get('data').get('quote')
+                                     .get(currency).get('price'), 2))
         else:
             return None
 

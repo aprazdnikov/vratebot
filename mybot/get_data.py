@@ -7,7 +7,7 @@ from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from accounts.models import Account
 
 from mybot.requests_data import RequestData
-from mybot.config import URL, COINMARKETCAP_TOKEN
+from mybot.config import URL, COINMARKETCAP_TOKEN, CURRENCY
 
 
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
@@ -20,6 +20,13 @@ def users_start(user):
 
 def users_wallet(user):
     return get_users(user.id)
+
+
+def rate_currency(currency):
+    if currency in cache:
+        return cache.get(currency)
+    else:
+        return None
 
 
 def get_users(user_id):
@@ -51,9 +58,9 @@ def get_usdt():
             'X-CMC_PRO_API_KEY': COINMARKETCAP_TOKEN,
         }
 
-        btc = URL.COINMARKETCAP.CURRENCY.BTC
-        eth = URL.COINMARKETCAP.CURRENCY.ETH
-        usdt = URL.COINMARKETCAP.CURRENCY.USDT
+        btc = CURRENCY.BTC
+        eth = CURRENCY.ETH
+        usdt = CURRENCY.USDT
 
         r = RequestData(headers)
         currency = f"{btc},{eth}"
@@ -61,19 +68,16 @@ def get_usdt():
             service=URL.COINMARKETCAP.NAME,
             url=URL.COINMARKETCAP.API,
             param={'symbol': currency},
-            currency=URL.COINMARKETCAP.CURRENCY.USDT
+            currency=usdt
         )
-        print(results)
+
         if results:
             for _ in results:
                 data = _.get('data')
+                price = str(data.get('quote').get(usdt).get('price'))
                 if data.get('symbol') == btc:
-                    cache.set(btc,
-                              data.get('quote').get(usdt).get('price'),
-                              timeout=CACHE_TTL)
+                    cache.set(btc, price, timeout=CACHE_TTL)
                 elif data.get('symbol') == eth:
-                    cache.set(eth,
-                              data.get('quote').get(usdt).get('price'),
-                              timeout=CACHE_TTL)
-
+                    cache.set(eth, price, timeout=CACHE_TTL)
+        print('Update rate in cache')
         time.sleep(30)

@@ -9,12 +9,10 @@ from aiogram.utils import executor
 from aiogram.types import ParseMode
 from aiogram.utils.markdown import bold
 
-from mybot.config import BOT_FATHER_TOKEN, COINMARKETCAP_TOKEN, \
-    BUTTON, MESSAGE, URL
+from mybot.config import BOT_FATHER_TOKEN, BUTTON, MESSAGE, CURRENCY
 
 from mybot.keyboards import KeyboardsBot
-from mybot.requests_data import RequestData
-from mybot.get_data import users_start, users_wallet
+from mybot.get_data import users_start, users_wallet, rate_currency
 
 
 logging.basicConfig(level=logging.INFO)
@@ -56,16 +54,7 @@ async def process_help_command(message: types.Message):
 async def echo_message(msg: types.Message):
 
     if (msg.text == BUTTON.BTC) or (msg.text == BUTTON.ETH):
-        r = RequestData(
-            header={'Accepts': 'application/json',
-                    'X-CMC_PRO_API_KEY': COINMARKETCAP_TOKEN}
-            )
-        price = r.get_data(
-            service=URL.COINMARKETCAP.NAME,
-            url=URL.COINMARKETCAP.API,
-            param={'symbol': msg.text.split(' ')[1]},
-            currency=URL.COINMARKETCAP.CURRENCY.USDT
-        )
+        price = rate_currency(msg.text.split(' ')[1])
         if price is not None:
             text_ = bold(f'{msg.text}: \n\n') + f"{price} USDT за единицу"
         else:
@@ -74,16 +63,28 @@ async def echo_message(msg: types.Message):
     elif msg.text == BUTTON.WALLET:
         res = users_wallet(msg.from_user)
         if res:
+            btc = res.get('btc')
+            eth = res.get('eth')
+
             text_ = bold(
                 f"{res.get('user_name')}\n\n") + \
                 f"В вашем кошельке: \n" + \
-                bold(f"BTC:") + f" {res.get('btc')}\n" + \
-                bold(f"ETH:") + f" {res.get('eth')}"
-            if URL.COINMARKETCAP.CURRENCY.BTC in cache:
+                bold(CURRENCY.BTC) + f": {btc}\n" + \
+                bold(CURRENCY.ETH) + f": {eth}"
+
+            usdt = {
+                CURRENCY.BTC: rate_currency(CURRENCY.BTC),
+                CURRENCY.ETH: rate_currency(CURRENCY.ETH)
+            }
+            if (usdt.get(CURRENCY.BTC) is not None) and \
+                    (usdt.get(CURRENCY.ETH) is not None):
+
+                btc_to_usdt = float(btc) * float(usdt.get(CURRENCY.BTC))
+                eth_to_usdt = float(eth) * float(usdt.get(CURRENCY.ETH))
+
                 text_ += f"\n\n В валюте USDT:\n" \
-                    f"BTC: {cache.get(URL.COINMARKETCAP.CURRENCY.BTC)}"
-            if URL.COINMARKETCAP.CURRENCY.ETH in cache:
-                text_ += f"\nETH: {cache.get(URL.COINMARKETCAP.CURRENCY.BTC)}"
+                    f"{CURRENCY.BTC}: {str(btc_to_usdt)}\n" \
+                    f"{CURRENCY.ETH}: {str(eth_to_usdt)}"
 
         else:
             text_ = MESSAGE.SORRY
